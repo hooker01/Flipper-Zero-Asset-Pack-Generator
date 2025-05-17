@@ -153,7 +153,6 @@ To use the generated asset pack on your Flipper Zero device, follow these steps:
 
 6. On the Flipper Zero, the new asset pack will be available for use in the animations section.
 
-**Note:** The copying process is manual and not automated by the script.
 
 ---
 
