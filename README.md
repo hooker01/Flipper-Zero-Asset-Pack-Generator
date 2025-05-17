@@ -40,8 +40,8 @@ You can either clone the repository or manually download and extract the `.zip` 
 #### Option 1: Clone from GitHub
 
 ```bash
-git clone https://github.com/your-username/asset-pack-generator.git
-cd asset-pack-generator
+git clone https://github.com/hooker01/Flipper-Zero-Asset-Pack-Generator.git
+cd Flipper-Zero-Asset-Pack-Generator
 ```
 
 #### Option 2: Download ZIP
