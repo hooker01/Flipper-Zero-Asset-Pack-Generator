@@ -144,19 +144,5 @@ When using the GUI, you can configure:
 * **Tkinter not found**: Install `python3-tk` (Linux) or ensure Python includes Tkinter.
 * **Heatshrink2 errors**: Confirm the `heatshrink2` package is installed (`pip install heatshrink2`).
 
----
 
-## Contributing
-
-Feel free to submit issues or pull requests for bug fixes, new features, or improvements. Ensure any changes are tested and compatible with Python 3.8+.
-
----
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-```
-
-Let me know if you'd like this saved as a `.md` file or converted into another format (like PDF or HTML).
 ```
