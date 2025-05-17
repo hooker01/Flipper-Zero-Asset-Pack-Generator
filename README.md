@@ -1,6 +1,3 @@
-Here is your text converted to Markdown (`.md`) format:
-
-````markdown
 # Flipper Zero Asset Pack Generator
 
 This project provides a Python-based tool for creating and packing animation asset packs for the **Flipper Zero** device. It consists of two main scripts:
