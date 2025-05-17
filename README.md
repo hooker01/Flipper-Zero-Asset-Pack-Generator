@@ -145,4 +145,4 @@ When using the GUI, you can configure:
 * **Heatshrink2 errors**: Confirm the `heatshrink2` package is installed (`pip install heatshrink2`).
 
 
-```
+
