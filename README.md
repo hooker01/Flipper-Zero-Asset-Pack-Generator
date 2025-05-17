@@ -1,148 +1,199 @@
-# Flipper Zero Asset Pack Generator
+# 🧰 Flipper Zero Asset Pack Generator
 
-This project provides a Python-based tool for creating and packing animation asset packs for the **Flipper Zero** device. It consists of two main scripts:
+## Overview
 
-- **AssetGenerator.py**: A Tkinter-based GUI for selecting PNG frames or ZIP files, configuring animation parameters, and generating asset packs.
-- **asset_packer.py**: A script for processing and packing animations, icons, and fonts into a Flipper Zero-compatible format, including PNG-to-BM conversion and Heatshrink compression.
+**Asset Pack Generator** is a Python-based GUI tool designed to transform a collection of GIF-based animation frames into a **Flipper Zero-compatible asset pack**. This includes proper formatting, frame compression, metadata generation, and packing into a Flipper-usable structure with support for animation parameters.
 
----
 
-## Features
+## 🔧 Features
 
-- User-friendly GUI for input selection (directory or ZIP) and parameter configuration.
-- Supports renaming and organizing PNG frames for animations.
-- Generates `meta.txt` and `manifest.txt` files with customizable parameters (e.g., frame rate, resolution, butthurt, level, weight).
-- Converts PNG frames to BM format and applies Heatshrink compression.
-- Packs animations, static/animated icons, and fonts into a structured asset pack.
-- Saves output to a user-specified directory.
+* Friendly GUI interface built with `tkinter`
+* Accepts either **folders** or **EZGIF zip exports**
+* Automatically processes and renames frames
+* Allows customization of:
 
----
-
-## Prerequisites
-
-To run this project, you need:
-
-- Python 3.8+ installed on your system.
-- The following Python packages:
-  - `tkinter` (usually included with Python; install `python3-tk` on Linux if missing)
-  - `Pillow` (for image processing)
-  - `heatshrink2` (for compression)
-
-A set of PNG files named in the format `frame_X_delay-*.png` (for animations) or a ZIP file containing such files.
+  * Pack name
+  * Animation name
+  * Frame size
+  * Animation metadata (butthurt, level, weight, etc.)
+  * Duration and frame rate
+* Outputs properly structured Flipper Zero asset packs
+* Compresses frames using Heatshrink2
+* Generates manifest files automatically
 
 ---
 
-## Installation
+## 🖥️ Requirements & Installation
 
-### Clone the Repository:
-```bash
-git clone https://github.com/yourusername/flipper-asset-pack-generator.git
-cd flipper-asset-pack-generator
-````
+### ✅ Required Python Packages
 
-### Install Dependencies:
-
-Install the required Python packages using pip:
+Make sure you are running **Python 3.10+** on **Windows** and have the following packages installed:
 
 ```bash
-pip install Pillow heatshrink2
+pip install pillow heatshrink2
 ```
 
-### Verify Tkinter:
+### 📥 Installation Instructions
 
-Ensure Tkinter is available. On Linux, you may need:
+You can either clone the repository or manually download and extract the `.zip` file:
+
+#### Option 1: Clone from GitHub
 
 ```bash
-sudo apt-get install python3-tk
+git clone https://github.com/your-username/asset-pack-generator.git
+cd asset-pack-generator
 ```
+
+#### Option 2: Download ZIP
+
+1. Download the repository ZIP
+2. Extract it anywhere on your PC
+3. Open a terminal (CMD or PowerShell) in the folder
 
 ---
 
-## Usage
+## 🎞️ Preparing the Asset Pack (Image Conversion via EZGIF)
 
-### Run the GUI:
+1. Go to: [https://ezgif.com](https://ezgif.com)
+2. Upload a **GIF** or **video** file.
+3. Convert the video to GIF (if needed).
+4. Optionally:
 
-Start the asset generator by running:
+   * **Crop** the image to 2:1 ratio (recommended for 128x64)
+   * **Resize** to `128x64` pixels
+   * Apply **Effects > Monochrome** to convert to black & white
+   * If the output looks broken, try clicking **"Unoptimize"**
+5. Download the **ZIP** from EZGIF.
+
+   * This zip will contain files like: `frame_0_delay-0.1s.png`, `frame_1_delay-0.1s.png`, etc.
+
+---
+
+## 🚀 Running the Program
+
+Once the setup is complete:
 
 ```bash
 python AssetGenerator.py
 ```
 
-* Select a directory containing PNG frames or a ZIP file with frames.
-* Enter animation parameters (e.g., pack name, animation name, frame rate, resolution).
-* Click **"Generate"** to process the frames and create an asset pack.
-* Choose a directory to save the final `asset_packs` folder.
-
-### Run the Packer Script (Optional):
-
-To manually pack assets in a directory, run:
-
-```bash
-python asset_packer.py
-```
-
-* The script scans subfolders for assets (animations, icons, fonts) and packs them into an `asset_packs` folder.
-* Press Enter to start and exit the script.
+⚠️ **Note**: The selected zip file **does NOT** need to be in the same folder as the scripts. You can place it anywhere.
 
 ---
 
-## File Structure
+## 🖱️ GUI Instructions & Parameters
 
-### Input:
+Once the GUI window opens, follow these steps:
 
-* PNG files should follow the naming convention `frame_X_delay-*.png` (e.g., `frame_0_delay-0.1s.png`).
-* ZIP files should contain these PNGs in the root or a subdirectory.
-* Optional: Folders for icons (`Icons/`) or fonts (`Fonts/`) in the input directory.
+### 1. Input Selection
 
-### Output:
+* Click **"Select zip file"** if you downloaded from EZGIF
+* Or click **"Select directory"** if you manually organized the frames
 
-The generated `asset_packs` folder has the following structure:
+### 2. Fill in Configuration
+
+You can customize the following parameters:
+
+| Field          | Description                           | Default      |
+| -------------- | ------------------------------------- | ------------ |
+| Pack name      | Name of the asset pack folder         | `N/A`        |
+| Animation name | Name of the animation inside the pack | `N/A`        |
+| Min butthurt   | Minimum character trait value         | `0`          |
+| Max butthurt   | Maximum character trait value         | `18`         |
+| Min level      | Minimum user level                    | `1`          |
+| Max level      | Maximum user level                    | `30`         |
+| Weight         | Asset weight (for internal use)       | `3`          |
+| Width          | Width of frames (must match input)    | `128`        |
+| Height         | Height of frames (must match input)   | `64`         |
+| Frame rate     | Frames per second                     | `8`          |
+| Duration       | Duration in milliseconds              | `3600`       |
+
+### 3. Generate the Pack
+
+Click **"Generate"** to start the process. The program will:
+
+* Rename and sort frames
+* Build necessary directories and metadata
+* Compress the frames
+* Export the result to a selectable directory
+
+---
+
+## 🧳 Output Structure
+
+After generation, the output folder (`asset_packs`) will include:
 
 ```
 asset_packs/
-└── <PackName>/
-    ├── Anims/
-    │   ├── manifest.txt
-    │   └── <AnimationName>/
-    │       ├── meta.txt
-    │       ├── frame_0.png
-    │       └── ...
-    ├── Icons/ (optional)
-    └── Fonts/ (optional)
+└── YourPackName/
+    └── Anims/
+        ├── manifest.txt
+        └── AnimationName/
+            ├── frame_0.png
+            ├── frame_1.png
+            ├── ...
+            └── meta.txt
 ```
 
----
+All frames are compressed into `.bm` format, and manifest files are properly created.
 
-## Parameters
+## How to Copy Generated Asset Pack to Flipper Zero
 
-When using the GUI, you can configure:
+To use the generated asset pack on your Flipper Zero device, follow these steps:
 
-* **Pack Name**: Name of the asset pack (e.g., `MyPack`)
-* **Animation Name**: Name of the animation (e.g., `MyAnim`)
-* **Min/Max Butthurt**: Range for Flipper Zero's "butthurt" metric (0–18)
-* **Min/Max Level**: Level range for the animation (1–30)
-* **Weight**: Animation weight (e.g., `3`)
-* **Width/Height**: Frame resolution (e.g., `128x64`)
-* **Frame Rate**: Frames per second (e.g., `8`)
-* **Duration**: Total animation duration in frames (e.g., `3600`)
+1. Locate the generated `YourPackName` folder inside the `asset_packs` directory on your computer.
 
----
+2. Connect your Flipper Zero device to your computer via USB, or insert its microSD card into your computer.
 
-## Notes
+3. Open the Flipper Zero’s storage and navigate to the `asset_packs` directory.
 
-* Ensure PNG files are properly formatted and named to avoid processing errors.
-* The `asset_packer.py` script supports additional asset types (icons, fonts), but the GUI focuses on animations.
-* Temporary files from ZIP extraction are automatically cleaned up.
-* If the output directory already contains an `asset_packs` folder, it will be overwritten.
+4. Copy the entire `YourPackName` folder from your computer’s `asset_packs` directory to the Flipper Zero’s `asset_packs` directory.
+
+5. Eject the Flipper Zero or its microSD card from your computer.
+
+6. On the Flipper Zero, the new asset pack will be available for use in the animations section.
+
+**Note:** The copying process is manual and not automated by the script.
 
 ---
 
-## Troubleshooting
 
-* **"No PNG files to rename"**: Ensure the input directory or ZIP contains PNGs with the correct naming convention.
-* **"All parameters must be numbers"**: Verify that numeric fields (e.g., frame rate, width) contain valid integers.
-* **Tkinter not found**: Install `python3-tk` (Linux) or ensure Python includes Tkinter.
-* **Heatshrink2 errors**: Confirm the `heatshrink2` package is installed (`pip install heatshrink2`).
+
+
+
+
+
+
+## ⚙️ asset\_packer.py - How It Works
+
+This script handles the **packing logic** including:
+
+* Conversion of `.png` to `.bm` (1-bit black and white)
+* Compression via `heatshrink2`
+* Writing of `.meta`, `.manifest`, and other config files
+* Ensures Flipper-compatible format
+
+Functions inside:
+
+* `convert_bm`: Converts and compresses image to Flipper-compatible `.bm`
+* `pack_anim`: Packs animation frames into correct folder
+* `pack_icon_static`, `pack_icon_animated`, `pack_font`: Handle extra asset types (optional)
+* `pack`: Main recursive logic that processes entire folders
+
+---
+
+## ❓ Notes & Tips
+
+* The image format **must be black & white (1-bit)**, otherwise you’ll encounter errors or visual bugs on Flipper
+* If you want to bulk create multiple packs, run `asset_packer.py` directly
+* Avoid using special characters in animation or pack names
+
+
+
+## Credit: 
+* The `asset_packer.py` script was adapted from [Xtreme-Firmware repository](https://github.com/Flipper-XFW/Xtreme-Firmware/blob/dev/scripts/asset_packer.py).
+
+
 
 
 
