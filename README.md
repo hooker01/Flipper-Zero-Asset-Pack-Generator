@@ -25,7 +25,7 @@
 
 ## 🖥️ Requirements & Installation
 
-### ✅ Required Python Packages
+### Required Python Packages
 
 Make sure you are running **Python 3.10+** on **Windows** and have the following packages installed:
 
