@@ -32,6 +32,9 @@ Make sure you are running **Python 3.10+** on **Windows** and have the following
 ```bash
 pip install pillow heatshrink2
 ```
+```bash
+pip install pillow ttkbootstrap
+```
 
 ### 📥 Installation Instructions
 
