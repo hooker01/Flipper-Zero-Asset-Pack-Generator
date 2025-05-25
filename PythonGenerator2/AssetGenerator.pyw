@@ -10,6 +10,8 @@ import shutil
 import tempfile
 import asset_packer
 import tkinter.simpledialog as simpledialog
+import webbrowser
+import subprocess 
 
 class App:
     def __init__(self, root):
