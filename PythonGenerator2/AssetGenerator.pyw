@@ -16,8 +16,8 @@ class App:
         self.root = root
         self.root.title("Asset Pack Generator")
         self.style = ttkb.Style(theme="darkly")
-        self.root.geometry("800x600")
-        self.root.minsize(600, 350)
+        self.root.geometry("800x700")
+        self.root.minsize(600, 650)
         self.selected_path = tk.StringVar()
         self.temp_dir = None
         self.pack_name = tk.StringVar()
@@ -44,6 +44,20 @@ class App:
         header_frame = ttkb.Frame(main_frame)
         header_frame.pack(fill=X, pady=(0, 5))
         ttkb.Label(header_frame, text="Asset Pack Generator", font=("Helvetica", 20, "bold")).pack(side=LEFT)
+        footer_frame = ttkb.Frame(main_container)
+        footer_frame.pack(side=BOTTOM, fill=X, pady=5)
+        credit_container = ttkb.Frame(footer_frame)
+        credit_container.pack(expand=True, pady=2)
+        ttkb.Label(credit_container, text="Created by ").pack(side=LEFT)
+        hooker_link = ttkb.Label(
+            credit_container, 
+            text="hooker01", 
+            foreground="#007BFF",  
+            cursor="hand2",        
+            font="-underline 1"    
+        )
+        hooker_link.pack(side=LEFT)
+        hooker_link.bind("<Button-1>", lambda e: webbrowser.open("https://github.com/hooker01"))
         theme_button = ttkb.Button(header_frame, text="Toggle Theme", style="outline.TButton", command=self.toggle_theme)
         theme_button.pack(side=RIGHT)
         ToolTip(theme_button, text="Switch between dark and light theme")
