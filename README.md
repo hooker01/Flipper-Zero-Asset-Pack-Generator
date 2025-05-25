@@ -100,7 +100,6 @@ You can customize the following parameters:
 | Field          | Description                           | Default      |
 | -------------- | ------------------------------------- | ------------ |
 | Pack name      | Name of the asset pack folder         | `N/A`        |
-| Animation name | Name of the animation inside the pack | `N/A`        |
 | Min butthurt   | Minimum character trait value         | `0`          |
 | Max butthurt   | Maximum character trait value         | `18`         |
 | Min level      | Minimum user level                    | `1`          |
