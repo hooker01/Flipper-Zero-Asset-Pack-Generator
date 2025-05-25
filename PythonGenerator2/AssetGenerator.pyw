@@ -22,6 +22,7 @@ class App:
         self.root.minsize(600, 650)
         self.selected_path = tk.StringVar()
         self.temp_dir = None
+        
         self.pack_name = tk.StringVar()
         self.min_butthurt = tk.StringVar(value="0")
         self.max_butthurt = tk.StringVar(value="18")
@@ -45,6 +46,7 @@ class App:
         main_frame.pack(fill=BOTH, expand=True, padx=5, pady=5)
         header_frame = ttkb.Frame(main_frame)
         header_frame.pack(fill=X, pady=(0, 5))
+        
         ttkb.Label(header_frame, text="Asset Pack Generator", font=("Helvetica", 20, "bold")).pack(side=LEFT)
         footer_frame = ttkb.Frame(main_container)
         footer_frame.pack(side=BOTTOM, fill=X, pady=5)
@@ -65,8 +67,10 @@ class App:
         ToolTip(theme_button, text="Switch between dark and light theme")
         input_frame = ttkb.LabelFrame(main_frame, text="Input Selection", padding=8)
         input_frame.pack(fill=X, pady=2)
+        
         ttkb.Button(input_frame, text="📁 Select Directory", style="primary.TButton", command=self.select_directory).grid(row=0, column=0, padx=5, pady=2, sticky=W)
         ttkb.Button(input_frame, text="📦 Select ZIP Files", style="primary.TButton", command=self.select_zips).grid(row=0, column=1, padx=5, pady=2, sticky=W)
+        
         ttkb.Label(input_frame, textvariable=self.selected_path, wraplength=350).grid(row=0, column=2, padx=5, pady=2, sticky=W)
         params_frame = ttkb.LabelFrame(main_frame, text="Animation Parameters", padding=8)
         params_frame.pack(fill=X, pady=2)
@@ -87,6 +91,7 @@ class App:
             entry = ttkb.Entry(params_frame, textvariable=var)
             entry.grid(row=row, column=1, padx=5, pady=2, sticky=EW)
             ToolTip(entry, text=tooltip)
+            
         params_frame.columnconfigure(1, weight=1)
         action_frame = ttkb.Frame(main_frame)
         action_frame.pack(fill=X, pady=2)
@@ -147,6 +152,7 @@ class App:
             height = int(self.height.get())
             frame_rate = int(self.frame_rate.get())
             duration = int(self.duration.get())
+            
         except ValueError as e:
             messagebox.showerror("Error", str(e) if str(e).startswith("Pack name") else "All parameters must be numbers except for names")
             return
@@ -178,6 +184,7 @@ class App:
                                 anim_dirs.append((d, anim_source))
                                 self.status_var.set(f"Found animation: {d} in {zip_dir}")
                                 self.root.update()
+                                
                     else:
                         files = [f for f in os.listdir(zip_path) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
                         if files:
@@ -190,6 +197,7 @@ class App:
                             anim_dirs.append((animation_name, anim_dir))
                             self.status_var.set(f"Created animation: {animation_name} from {zip_dir}")
                             self.root.update()
+                            
         elif os.path.exists(os.path.join(input_directory, "Anims")):
             for d in os.listdir(os.path.join(input_directory, "Anims")):
                 anim_source = os.path.join(input_directory, "Anims", d)
@@ -213,6 +221,7 @@ class App:
                     self.status_var.set(f"Created animation: {animation_name} from {subdir}")
                     self.root.update()
 
+        
         if not anim_dirs:
             files = [f for f in os.listdir(input_directory) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
             if not files:
@@ -233,6 +242,7 @@ class App:
 
         for anim_name, anim_path in anim_dirs:
             target_anim_dir = os.path.join(anims_dir, anim_name)
+            
             if not os.path.exists(target_anim_dir):
                 shutil.copytree(anim_path, target_anim_dir)
             num_frames = len([f for f in os.listdir(target_anim_dir) if f.startswith("frame_") and f.endswith(".png")])
