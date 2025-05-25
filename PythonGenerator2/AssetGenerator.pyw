@@ -9,6 +9,7 @@ import re
 import shutil
 import tempfile
 import asset_packer
+import tkinter.simpledialog as simpledialog
 
 class App:
     def __init__(self, root):
@@ -112,183 +113,11 @@ class App:
             self.selected_path.set(self.temp_dir)
             self.status_var.set(f"Selected {len(zip_files)} ZIP files")
 
-    def check_pack_name(self, pack_name, asset_packs_dir):
-        pack_dir = os.path.join(asset_packs_dir, pack_name)
-        if os.path.exists(pack_dir):
-            dialog = ttkb.Toplevel(self.root)
-            dialog.title("Name Conflict")
-            dialog.transient(self.root)
-            dialog.grab_set()
-            ttkb.Label(dialog, text=f"Pack '{pack_name}' already exists. Do you want to replace it or choose a new name?", wraplength=300).pack(padx=20, pady=10)
-            replace_button = ttkb.Button(dialog, text="Replace", style="warning.TButton", command=lambda: dialog.destroy() or self.confirm_replace(pack_name, asset_packs_dir))
-            replace_button.pack(side=LEFT, padx=5, pady=5)
-            new_name_button = ttkb.Button(dialog, text="New Name", style="primary.TButton", command=lambda: dialog.destroy() or self.prompt_new_name(asset_packs_dir))
-            new_name_button.pack(side=RIGHT, padx=5, pady=5)
-            dialog.geometry("350x150")
-            dialog.resizable(False, False)
-            self.root.eval(f'tk::PlaceWindow {dialog} center')
-            self.root.wait_window(dialog)
-            return False
-        return True
-
-    def confirm_replace(self, pack_name, asset_packs_dir):
-        pack_dir = os.path.join(asset_packs_dir, pack_name)
-        shutil.rmtree(pack_dir, ignore_errors=True)
-        self.continue_generate(pack_name, asset_packs_dir)
-
-    def prompt_new_name(self, asset_packs_dir):
-        dialog = ttkb.Toplevel(self.root)
-        dialog.title("Enter New Pack Name")
-        dialog.transient(self.root)
-        dialog.grab_set()
-        ttkb.Label(dialog, text="Enter a new pack name:").pack(padx=20, pady=5)
-        new_name_var = tk.StringVar()
-        entry = ttkb.Entry(dialog, textvariable=new_name_var)
-        entry.pack(padx=20, pady=5)
-        entry.focus_set()
-        def submit():
-            new_name = new_name_var.get().strip()
-            if not new_name:
-                messagebox.showerror("Error", "Pack name cannot be empty", parent=dialog)
-                return
-            if self.check_pack_name(new_name, asset_packs_dir):
-                dialog.destroy()
-                self.continue_generate(new_name, asset_packs_dir)
-        ttkb.Button(dialog, text="Submit", style="primary.TButton", command=submit).pack(pady=5)
-        dialog.geometry("300x150")
-        dialog.resizable(False, False)
-        self.root.eval(f'tk::PlaceWindow {dialog} center')
-        self.root.wait_window(dialog)
-
-    def continue_generate(self, pack_name, asset_packs_dir):
-        directory = self.selected_path.get()
-        pack_dir = os.path.join(asset_packs_dir, pack_name)
-        os.makedirs(pack_dir, exist_ok=True)
-        anims_dir = os.path.join(pack_dir, "Anims")
-        os.makedirs(anims_dir, exist_ok=True)
-        anim_dirs = []
-        self.progress_var.set(10)
-        self.root.update()
-        if self.temp_dir:
-            for zip_dir in os.listdir(directory):
-                zip_path = os.path.join(directory, zip_dir)
-                if os.path.isdir(zip_path):
-                    anims_path = os.path.join(zip_path, "Anims")
-                    if os.path.exists(anims_path):
-                        for d in os.listdir(anims_path):
-                            if os.path.isdir(os.path.join(anims_path, d)):
-                                anim_dirs.append((d, os.path.join(anims_path, d)))
-                                self.status_var.set(f"Found animation: {d} in {zip_dir}")
-                                self.root.update()
-                    else:
-                        files = [f for f in os.listdir(zip_path) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
-                        if files:
-                            animation_name = f"Animation_{zip_dir}"
-                            anim_dir = os.path.join(zip_path, "Anims", animation_name)
-                            os.makedirs(anim_dir, exist_ok=True)
-                            files.sort()
-                            for i, file in enumerate(files):
-                                new_name = f"frame_{i}.png"
-                                os.rename(os.path.join(zip_path, file), os.path.join(anim_dir, new_name))
-                            anim_dirs.append((animation_name, anim_dir))
-                            self.status_var.set(f"Created animation: {animation_name} from {zip_dir}")
-                            self.root.update()
-        elif os.path.exists(os.path.join(directory, "Anims")):
-            for d in os.listdir(os.path.join(directory, "Anims")):
-                if os.path.isdir(os.path.join(directory, "Anims", d)):
-                    anim_dirs.append((d, os.path.join(directory, "Anims", d)))
-                    self.status_var.set(f"Found animation: {d} in directory")
-                    self.root.update()
-        else:
-            files = [f for f in os.listdir(directory) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
-            if not files:
-                messagebox.showerror("Error", "No PNG files to process in the selected directory")
-                return
-            files.sort()
-            for i, file in enumerate(files):
-                new_name = f"frame_{i}.png"
-                os.rename(os.path.join(directory, file), os.path.join(directory, new_name))
-            animation_name = "DefaultAnimation"
-            animation_dir = os.path.join(anims_dir, animation_name)
-            os.makedirs(animation_dir, exist_ok=True)
-            for i in range(len(files)):
-                shutil.move(os.path.join(directory, f"frame_{i}.png"), os.path.join(animation_dir, f"frame_{i}.png"))
-            anim_dirs.append((animation_name, animation_dir))
-            self.status_var.set(f"Created default animation: {animation_name}")
-            self.root.update()
-        self.progress_var.set(30)
-        self.root.update()
-        for anim_name, anim_path in anim_dirs:
-            target_anim_dir = os.path.join(anims_dir, anim_name)
-            if not os.path.exists(target_anim_dir):
-                shutil.copytree(anim_path, target_anim_dir)
-            num_frames = len([f for f in os.listdir(target_anim_dir) if f.startswith("frame_") and f.endswith(".png")])
-            meta_path = os.path.join(target_anim_dir, "meta.txt")
-            if not os.path.exists(meta_path):
-                with open(meta_path, "w") as f:
-                    f.write("Filetype: Flipper Animation\n")
-                    f.write("Version: 1\n\n")
-                    f.write(f"Width: {self.width.get()}\n")
-                    f.write(f"Height: {self.height.get()}\n")
-                    f.write(f"Passive frames: {num_frames}\n")
-                    f.write("Active frames: 0\n")
-                    f.write(f"Frames order: {' '.join(map(str, range(num_frames)))}\n")
-                    f.write("Active cycles: 0\n")
-                    f.write(f"Frame rate: {self.frame_rate.get()}\n")
-                    f.write(f"Duration: {self.duration.get()}\n")
-                    f.write("Active cooldown: 0\n\n")
-                    f.write("Bubble slots: 0\n")
-            self.progress_var.set(self.progress_var.get() + (50 / len(anim_dirs)))
-            self.status_var.set(f"Processed animation: {anim_name}")
-            self.root.update()
-        manifest_path = os.path.join(anims_dir, "manifest.txt")
-        source_manifest = os.path.join(directory, "Anims", "manifest.txt") if not self.temp_dir else None
-        if not os.path.exists(manifest_path) and (not source_manifest or not os.path.exists(source_manifest)):
-            with open(manifest_path, "w") as f:
-                f.write("Filetype: Flipper Animation Manifest\n")
-                f.write("Version: 1\n\n")
-                for anim_name, _ in anim_dirs:
-                    f.write(f"Name: {anim_name}\n")
-                    f.write(f"Min butthurt: {self.min_butthurt.get()}\n")
-                    f.write(f"Max butthurt: {self.max_butthurt.get()}\n")
-                    f.write(f"Min level: {self.min_level.get()}\n")
-                    f.write(f"Max level: {self.max_level.get()}\n")
-                    f.write(f"Weight: {self.weight.get()}\n\n")
-        elif source_manifest and os.path.exists(source_manifest):
-            shutil.copy(source_manifest, manifest_path)
-        self.progress_var.set(80)
-        self.status_var.set("Converting to .bm format...")
-        self.root.update()
-        output_dir = os.path.join(directory, "asset_packs")
-        os.makedirs(output_dir, exist_ok=True)
-        asset_packer.pack(asset_packs_dir, output_dir, logger=lambda x: self.status_var.set(x))
-        self.progress_var.set(90)
-        self.root.update()
-        save_dir = filedialog.askdirectory(title="Select directory to save asset_packs")
-        if save_dir:
-            dest_dir = os.path.join(save_dir, "asset_packs")
-            os.makedirs(dest_dir, exist_ok=True)
-            dest_pack_dir = os.path.join(dest_dir, pack_name)
-            if os.path.exists(dest_pack_dir):
-                shutil.rmtree(dest_pack_dir, ignore_errors=True)
-            shutil.copytree(pack_dir, dest_pack_dir)
-            self.progress_var.set(100)
-            self.status_var.set("Asset pack successfully saved")
-            messagebox.showinfo("Success", "Asset pack successfully saved")
-        else:
-            self.status_var.set("Asset pack generation cancelled")
-            messagebox.showwarning("Warning", "Asset pack will not be saved")
-        if self.temp_dir:
-            shutil.rmtree(self.temp_dir, ignore_errors=True)
-            self.temp_dir = None
-            self.selected_path.set("")
-        self.progress_var.set(0)
-
     def generate(self):
         if not self.selected_path.get():
             messagebox.showerror("Error", "Please select a directory or zip files")
             return
-        directory = self.selected_path.get()
+        input_directory = self.selected_path.get()
         try:
             pack_name = self.pack_name.get().strip()
             if not pack_name:
@@ -305,13 +134,167 @@ class App:
         except ValueError as e:
             messagebox.showerror("Error", str(e) if str(e).startswith("Pack name") else "All parameters must be numbers except for names")
             return
+
         self.progress_var.set(0)
         self.status_var.set("Starting generation...")
         self.root.update()
-        asset_packs_dir = os.path.join(directory, "AssetPacks")
+
+        temp_work_dir = tempfile.mkdtemp()
+        asset_packs_dir = os.path.join(temp_work_dir, "AssetPacks")
         os.makedirs(asset_packs_dir, exist_ok=True)
-        if self.check_pack_name(pack_name, asset_packs_dir):
-            self.continue_generate(pack_name, asset_packs_dir)
+
+        pack_dir = os.path.join(asset_packs_dir, pack_name)
+        os.makedirs(pack_dir, exist_ok=True)
+        anims_dir = os.path.join(pack_dir, "Anims")
+        os.makedirs(anims_dir, exist_ok=True)
+
+        anim_dirs = []
+
+        if self.temp_dir:
+            for zip_dir in os.listdir(self.temp_dir):
+                zip_path = os.path.join(self.temp_dir, zip_dir)
+                if os.path.isdir(zip_path):
+                    anims_path = os.path.join(zip_path, "Anims")
+                    if os.path.exists(anims_path):
+                        for d in os.listdir(anims_path):
+                            anim_source = os.path.join(anims_path, d)
+                            if os.path.isdir(anim_source):
+                                anim_dirs.append((d, anim_source))
+                                self.status_var.set(f"Found animation: {d} in {zip_dir}")
+                                self.root.update()
+                    else:
+                        files = [f for f in os.listdir(zip_path) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
+                        if files:
+                            animation_name = f"Animation_{zip_dir}"
+                            anim_dir = os.path.join(anims_dir, animation_name)
+                            os.makedirs(anim_dir, exist_ok=True)
+                            files.sort()
+                            for i, file in enumerate(files):
+                                shutil.copy(os.path.join(zip_path, file), os.path.join(anim_dir, f"frame_{i}.png"))
+                            anim_dirs.append((animation_name, anim_dir))
+                            self.status_var.set(f"Created animation: {animation_name} from {zip_dir}")
+                            self.root.update()
+        elif os.path.exists(os.path.join(input_directory, "Anims")):
+            for d in os.listdir(os.path.join(input_directory, "Anims")):
+                anim_source = os.path.join(input_directory, "Anims", d)
+                if os.path.isdir(anim_source):
+                    anim_dirs.append((d, anim_source))
+                    self.status_var.set(f"Found animation: {d} in directory")
+                    self.root.update()
+        else:
+            subdirs = [d for d in os.listdir(input_directory) if os.path.isdir(os.path.join(input_directory, d)) and not d.startswith(".")]
+            for subdir in subdirs:
+                subdir_path = os.path.join(input_directory, subdir)
+                files = [f for f in os.listdir(subdir_path) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
+                if files:
+                    animation_name = f"Animation_{subdir}"
+                    anim_dir = os.path.join(anims_dir, animation_name)
+                    os.makedirs(anim_dir, exist_ok=True)
+                    files.sort()
+                    for i, file in enumerate(files):
+                        shutil.copy(os.path.join(subdir_path, file), os.path.join(anim_dir, f"frame_{i}.png"))
+                    anim_dirs.append((animation_name, anim_dir))
+                    self.status_var.set(f"Created animation: {animation_name} from {subdir}")
+                    self.root.update()
+
+        if not anim_dirs:
+            files = [f for f in os.listdir(input_directory) if re.match(r'^frame_\d+_delay-.*\.png$', f)]
+            if not files:
+                messagebox.showerror("Error", "No PNG files to process in the selected directory")
+                return
+            files.sort()
+            animation_name = "DefaultAnimation"
+            anim_dir = os.path.join(anims_dir, animation_name)
+            os.makedirs(anim_dir, exist_ok=True)
+            for i, file in enumerate(files):
+                shutil.copy(os.path.join(input_directory, file), os.path.join(anim_dir, f"frame_{i}.png"))
+            anim_dirs.append((animation_name, anim_dir))
+            self.status_var.set(f"Created default animation: {animation_name}")
+            self.root.update()
+
+        self.progress_var.set(30)
+        self.root.update()
+
+        for anim_name, anim_path in anim_dirs:
+            target_anim_dir = os.path.join(anims_dir, anim_name)
+            if not os.path.exists(target_anim_dir):
+                shutil.copytree(anim_path, target_anim_dir)
+            num_frames = len([f for f in os.listdir(target_anim_dir) if f.startswith("frame_") and f.endswith(".png")])
+            meta_path = os.path.join(target_anim_dir, "meta.txt")
+            if not os.path.exists(meta_path):
+                with open(meta_path, "w") as f:
+                    f.write("Filetype: Flipper Animation\n")
+                    f.write("Version: 1\n")
+                    f.write(f"Width: {width}\n")
+                    f.write(f"Height: {height}\n")
+                    f.write(f"Passive frames: {num_frames}\n")
+                    f.write("Active frames: 0\n")
+                    f.write(f"Frames order: {' '.join(map(str, range(num_frames)))}\n")
+                    f.write("Active cycles: 0\n")
+                    f.write(f"Frame rate: {frame_rate}\n")
+                    f.write(f"Duration: {duration}\n")
+                    f.write("Active cooldown: 0\n")
+                    f.write("Bubble slots: 0\n")
+            self.progress_var.set(self.progress_var.get() + (50 / len(anim_dirs)))
+            self.status_var.set(f"Processed animation: {anim_name}")
+            self.root.update()
+
+        manifest_path = os.path.join(anims_dir, "manifest.txt")
+        if not os.path.exists(manifest_path):
+            with open(manifest_path, "w") as f:
+                f.write("Filetype: Flipper Animation Manifest\n")
+                f.write("Version: 1\n")
+                for anim_name, _ in anim_dirs:
+                    f.write(f"Name: {anim_name}\n")
+                    f.write(f"Min butthurt: {min_butthurt}\n")
+                    f.write(f"Max butthurt: {max_butthurt}\n")
+                    f.write(f"Min level: {min_level}\n")
+                    f.write(f"Max level: {max_level}\n")
+                    f.write(f"Weight: {weight}\n")
+
+        self.progress_var.set(80)
+        self.status_var.set("Converting to .bm format...")
+        self.root.update()
+
+        output_dir = os.path.join(temp_work_dir, "asset_packs")
+        asset_packer.pack(asset_packs_dir, output_dir, logger=lambda x: self.status_var.set(x))
+
+        self.progress_var.set(90)
+        self.root.update()
+
+        save_dir = filedialog.askdirectory(title="Select directory to save asset_packs")
+        if save_dir:
+            dest_dir = os.path.join(save_dir, "asset_packs")
+            os.makedirs(dest_dir, exist_ok=True)
+            for item in os.listdir(output_dir):
+                src_item = os.path.join(output_dir, item)
+                dst_item = os.path.join(dest_dir, item)
+                if os.path.exists(dst_item):
+                    response = messagebox.askyesno("Conflict", f"A pack named '{item}' already exists. Replace it?")
+                    if not response:
+                        continue
+                    if os.path.isdir(dst_item):
+                        shutil.rmtree(dst_item, ignore_errors=True)
+                    else:
+                        os.remove(dst_item)
+                if os.path.isdir(src_item):
+                    shutil.copytree(src_item, dst_item)
+                else:
+                    shutil.copy2(src_item, dst_item)
+            self.progress_var.set(100)
+            self.status_var.set("Asset pack successfully saved")
+            messagebox.showinfo("Success", "Asset pack successfully saved")
+        else:
+            self.status_var.set("Asset pack generation cancelled")
+            messagebox.showwarning("Warning", "Asset pack will be deleted")
+            shutil.rmtree(output_dir, ignore_errors=True)
+
+        shutil.rmtree(temp_work_dir, ignore_errors=True)
+        if self.temp_dir:
+            shutil.rmtree(self.temp_dir, ignore_errors=True)
+            self.temp_dir = None
+            self.selected_path.set("")
+        self.progress_var.set(0)
 
 if __name__ == "__main__":
     root = tk.Tk()
