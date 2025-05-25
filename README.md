@@ -13,7 +13,6 @@
 * Allows customization of:
 
   * Pack name
-  * Animation name
   * Frame size
   * Animation metadata (butthurt, level, weight, etc.)
   * Duration and frame rate
