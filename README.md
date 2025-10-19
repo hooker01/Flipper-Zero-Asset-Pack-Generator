@@ -20,6 +20,9 @@
 * Compresses frames using Heatshrink2
 * Generates manifest files automatically
 
+![Preview](https://raw.githubusercontent.com/hooker01/Flipper-Zero-Asset-Pack-Generator/main/SCR/preview.png)
+
+
 ---
 
 ## 🖥️ Requirements & Installation
